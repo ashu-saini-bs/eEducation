@@ -520,6 +520,24 @@
     content: ' ';
     background-image: url('./assets/icon-hand-disable.png');
   }
+  .poll_create::after {
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    content: ' ';
+    background-image: url('./assets/icon-poll-create.png');
+  }
+  .poll_show::after {
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    content: ' ';
+    background-image: url('./assets/icon-poll-show.png');
+  }
 }
 
 .icon-expand {

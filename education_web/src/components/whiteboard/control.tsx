@@ -1,5 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import Icon from '../icon';
+import PollCard from '../../components/poll/index'
+import usePollData from '../../hooks/use-poll-data';
+import { useLocation } from 'react-router';
 import { roomStore } from '../../stores/room';
 import { whiteboard } from '../../stores/whiteboard';
 import moment from 'moment';
@@ -60,6 +63,15 @@ export default function Control({
   notice,
 }: ControlProps) {
   const lock = useRef<boolean>(false);
+  const location = useLocation();
+  const {createPollFlag, pollView, handlePollTool, endPoll } = usePollData();
+
+  const showCreate: boolean = useMemo(() => {
+    if (role === 'teacher' && (location.pathname.match(/big-class/) || location.pathname.match(/small-class/))) {
+      return true
+    }
+    return false;
+  }, []);
 
   const canStop = () => {
     const timeMoment = moment(whiteboard.state.startTime).add(15, 'seconds');
@@ -127,6 +139,7 @@ export default function Control({
   }
 
   return (
+    <>
     <div className="controls-container">
       <div className="interactive">
         {notice ? 
@@ -170,6 +183,17 @@ export default function Control({
               text={sharing ? 'stop sharing' : ''}
             />
           </> : null }
+        {role === 'teacher' ?
+         showCreate ?
+         <>
+         <ControlItem
+         name={pollView === 'create' ? 'poll_create' : 'poll_show'}
+         onClick={() => {pollView === 'create' ? handlePollTool('create_popup', true) : handlePollTool('show_popup', true)}}
+         active={false}
+         text={pollView === 'create' ? '' : ''}
+         />
+         </> : null
+         : null }
         {role === 'student' ?
           <>
             <ControlItem
@@ -181,7 +205,13 @@ export default function Control({
           </>
          :null}
       </div>
-
     </div>
+    <PollCard 
+    createFlag={createPollFlag}
+    role={role}
+    tool={handlePollTool}
+    endPoll={endPoll}
+    />
+    </>
   )
 }

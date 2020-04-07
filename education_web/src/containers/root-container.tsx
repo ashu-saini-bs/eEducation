@@ -131,21 +131,43 @@ export const RootProvider: React.FC<any> = ({children}) => {
     });
     rtmClient.on("ChannelMessage", ({ memberId, message }: { message: { text: string }, memberId: string }) => {
       const msg = jsonParse(message.text);
-      const chatMessage = {
-        account: msg.account,
-        text: msg.content,
-        link: msg.link,
-        ts: +Date.now(),
-        id: memberId,
+      switch (msg.type) {
+        case "poll":
+          const poll = {
+            pollId: msg.pollId,
+            teacher: msg.teacher,
+            question: msg.question,
+            show: true,
+            options: msg.options
+          }
+          roomStore.addPollData(poll)
+          break;
+        case "poll_answer":
+          const votes = {
+            options: msg.answer
+          }
+          roomStore.addPollVotes(votes)
+          break;
+        case "end_poll":
+          roomStore.endPoll()
+           break;     
+        default:
+        const chatMessage = {
+          account: msg.account,
+          text: msg.content,
+          link: msg.link,
+          ts: +Date.now(),
+          id: memberId,
+        }
+        const isChatroom = globalStore.state.active === 'chatroom';
+        if (!isChatroom) {
+          globalStore.setMessageCount(globalStore.state.newMessageCount+1);
+        } else {
+          globalStore.setMessageCount(0);
+        }
+        roomStore.updateChannelMessage(chatMessage);
       }
       console.log("[rtmClient] ChannelMessage", msg);
-      const isChatroom = globalStore.state.active === 'chatroom';
-      if (!isChatroom) {
-        globalStore.setMessageCount(globalStore.state.newMessageCount+1);
-      } else {
-        globalStore.setMessageCount(0);
-      }
-      roomStore.updateChannelMessage(chatMessage);
     });
     return () => {
       rtmClient.removeAllListeners();

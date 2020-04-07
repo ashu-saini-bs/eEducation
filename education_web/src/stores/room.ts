@@ -127,6 +127,24 @@ export type RtmState = {
   memberCount: number
 }
 
+export type VoteUser = {
+  name : string
+}
+
+export interface PollOptions {
+  option: string
+  votes: number
+  voterId: List<VoteUser>
+}
+
+export type PollData = {
+  pollId: string
+  teacher: string
+  question: string
+  show: boolean
+  options : List<PollOptions>
+}
+
 export type RoomState = {
   rtmLock: boolean
   rtmToken: string
@@ -138,6 +156,7 @@ export type RoomState = {
   rtc: RtcState
   rtm: RtmState
   mediaDevice: MediaDeviceState
+  poll: PollData
   messages: List<ChatMessage>
   language: string
 }
@@ -210,6 +229,13 @@ export class RoomStore {
       camera: 0,
       speaker: 0,
       microphone: 0
+    },
+    poll: {
+      pollId: '',
+      teacher: '',
+      question: '',
+      show: false,
+      options : List<PollOptions>(),
     },
     messages: List<ChatMessage>(),
     language: navigator.language,
@@ -684,6 +710,57 @@ export class RoomStore {
       messages: this.state.messages.push(msg)
     };
 
+    this.commit(this.state);
+  }
+
+  addPollData(data: any) {
+    this.state = {
+      ...this.state,
+      poll: {
+        ...this.state.poll,
+        pollId: data.pollId,
+        teacher: data.teacher,
+        question: data.question,
+        show: data.show,
+        options : data.options
+      }
+    }
+    this.commit(this.state);
+  }
+
+  addPollVotes(votes: any) {
+    this.state = {
+      ...this.state,
+      poll: {
+        ...this.state.poll,
+        options:votes.options
+      }
+    }
+    this.commit(this.state);
+  }
+
+  openPollDetail(view: boolean) {
+    this.state = {
+      ...this.state,
+      poll: {
+        ...this.state.poll,
+        show: view
+      }
+    }
+    this.commit(this.state);
+  }
+
+  endPoll() {
+    this.state = {
+      ...this.state,
+      poll: {
+        pollId: '',
+        teacher: '',
+        question: '',
+        show: false,
+        options : List<PollOptions>()
+      }
+    }
     this.commit(this.state);
   }
 

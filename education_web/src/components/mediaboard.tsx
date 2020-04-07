@@ -243,7 +243,7 @@ const MediaBoard: React.FC<MediaBoardProps> = ({
 
   const showControl: boolean = useMemo(() => {
     if (me.role === 'teacher') return true;
-    if (location.pathname.match(/big-class/)) {
+    if (location.pathname.match(/big-class/) || location.pathname.match(/small-class/)) {
       if (me.role === 'student') {
         return true;
       }
